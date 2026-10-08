@@ -1,0 +1,50 @@
+name: PrismCart CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  frontend:
+    name: Frontend CI (React 19 + Vitest + Oxlint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Oxlint
+        run: npm run lint
+
+      - name: Run Vitest Unit Tests
+        run: npm test
+
+      - name: Build Production Bundle
+        run: npm run build
+
+  backend:
+    name: Backend CI (Spring Boot 3 + Java 21)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: |
+          cd backend
+          mvn clean package -DskipTests
